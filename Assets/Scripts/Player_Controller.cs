@@ -5,7 +5,10 @@ using TMPro;
 
 public class Player_Controller : MonoBehaviour
 {
+
+    AudioSource Audio1;
     public TMP_Text ScoreText;
+    public TMP_Text BirdsText;
     Animator anim;
     public float speed;
     public float turnSpeed;
@@ -20,6 +23,16 @@ public class Player_Controller : MonoBehaviour
     public Transform player;
 
     private bool playingGuitar;
+
+    public Animator BirdAnim;
+
+    string BirdsDropped;
+    
+    bool StringEmptyBool;
+
+    bool PlayAudio;
+    bool AudioStop;
+
     void Start()
     {
         rb = GetComponentInChildren<Rigidbody>();
@@ -27,6 +40,8 @@ public class Player_Controller : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         player = GameObject.FindGameObjectWithTag("Player").transform;
         Score = 0;
+        BirdsDropped = "The Cage Has Dropped !";
+        Audio1 = GetComponent<AudioSource>();
     }
     void Update()
     {
@@ -64,7 +79,7 @@ public class Player_Controller : MonoBehaviour
             anim.SetBool("Dancing", false);
         }
 
-        if(Input.GetKey(KeyCode.F))
+        if(Input.GetMouseButton(0))
         {
             anim.SetBool("Dancing", true);
             anim.SetBool("Idle", false);
@@ -72,14 +87,17 @@ public class Player_Controller : MonoBehaviour
             anim.SetBool("Run", false);
             StartCoroutine(GuitarPlay());
         }
-
         if(Input.GetKey(KeyCode.LeftShift))
         {
             anim.SetBool("Walk", false);
             anim.SetBool("Run", true);
             transform.Translate(Vector3.forward * Time.deltaTime * runspeed);
         }
-
+        if(Score == 500)
+        {
+            BirdAnim.SetBool("ScoreMet", true);
+            BirdsText.SetText(BirdsDropped.ToString());
+        }
         IEnumerator Waitforidle()
         {
             yield return new WaitForSeconds(2);
@@ -90,7 +108,7 @@ public class Player_Controller : MonoBehaviour
         {
             if(!playingGuitar) {
                 playingGuitar=true;
-                yield  return new WaitForSeconds(2);
+                yield  return new WaitForSeconds(3);
                 Debug.Log("Enemy Transformed");
                 GameObject closestEnemy = FindClosestEnemy();
                 if (closestEnemy != null && Vector3.Distance(player.position, closestEnemy.transform.position) <= destroyDistance)
@@ -101,7 +119,8 @@ public class Player_Controller : MonoBehaviour
                     ScoreText.SetText(Score.ToString());
                 }
                 playingGuitar=false;
-            } else {
+            } 
+            else {
                 yield return null;
             }
         }
